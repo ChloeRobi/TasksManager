@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Param, Post, Query, UseGuards } from '
 import { UserService } from './user.service';
 import { UserDto } from './dto/user.dto';
 import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 export class UserController {
@@ -17,14 +18,13 @@ export class UserController {
 
     @Get()
     @UseGuards(JwtAuthGuard)
-    findByEmail(@Query() query: { email: string }) {
+    findByEmail(@Query() query: { email: string }): Promise<User> {
         return this.userService.findByEmail(query.email);
     }
 
     @Post()
     @HttpCode(201)
-    async create(@Body() userDto: UserDto) {
-        console.log(userDto)
+    async create(@Body() userDto: UserDto): Promise<User> {
         return this.userService.save(userDto);
     }
 

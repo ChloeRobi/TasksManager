@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './authentication/auth.module';
+import { TaskModule } from './tasks/task/task.module';
+import { TasksListModule } from './tasks/tasksList/tasks-list.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -13,7 +15,7 @@ import { AuthModule } from './authentication/auth.module';
     database: "tasksmanager",
     entities: ["dist/**/*.entity{.ts,.js}"],
     synchronize: true
-  }), UserModule, AuthModule],
+  }), UserModule, AuthModule, TaskModule, TasksListModule],
   controllers: [],
   providers: [],
 })

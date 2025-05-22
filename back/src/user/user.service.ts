@@ -2,9 +2,9 @@ import * as bcrypt from 'bcrypt';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import { UserDto } from './dto/user.dto';
-import { ErrorMessage } from './model/errorMessage';
+import { ErrorMessage } from './model/error-message';
 
 @Injectable()
 export class UserService {
@@ -15,18 +15,22 @@ export class UserService {
     ) { }
 
 
-    async findByEmail(email: string): Promise<User | null> {
-        return this.userRepository.findOne({ where: { email } });
+    async findByEmail(email: string): Promise<User> {
+        const user = await this.userRepository.findOne({ where: { email } });
+        if (user === null) {
+            throw new NotFoundException(ErrorMessage.USER_SEARCH_FAILURE);
+        }
+        return user;
     }
 
-    async findOne(id: number): Promise<User | null> {
+    async findOne(id: number): Promise<User> {
         const user = await this.userRepository.findOne({
             where: {
                 id: id
             },
         });
-        if (user === undefined) {
-            throw new NotFoundException('Project cannot be found');
+        if (!user) {
+            throw new NotFoundException(ErrorMessage.USER_SEARCH_FAILURE);
         }
         return user;
     }
@@ -34,10 +38,6 @@ export class UserService {
     async save(userDto: UserDto): Promise<User> {
         const numberOfRounds = 10;
         const hashedPassword = await bcrypt.hash(userDto.password, numberOfRounds);
-        console.log('User to save:', {
-        ...userDto,
-        password: hashedPassword,
-        });
 
         try {
             return await this.userRepository.save({

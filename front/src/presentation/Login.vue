@@ -39,8 +39,10 @@
 </style>
 
 <script setup lang="ts">
+import type { ErrorMessage } from '@/domain/model/errorMessage';
 import type UserLogin from '@/domain/model/userLogin';
 import type AuthenticationService from '@/domain/service/authenticationService';
+import type UserService from '@/domain/service/userService';
 import { inject, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router'
 
@@ -56,17 +58,25 @@ const authenticationService: AuthenticationService = inject(
 	{} as AuthenticationService
 );
 
-function authentication(): void {
+const userService: UserService = inject(
+	'user-service',
+	{} as UserService
+);
+
+async function authentication(): Promise<void> {
   const userLogin: UserLogin = {
     username: email.value,
     password: password.value
   }
-  authenticationService.authenticateUser(userLogin)
-  .then(() => router.push({ name: 'MainPage' }))
-  .catch((error: ErrorMessage) => {
-    errorMessage.value = error;
-    showError.value = true;
-  });
+  await authenticationService.authenticateUser(userLogin)
+    .catch((error: ErrorMessage) => {
+      errorMessage.value = error;
+      showError.value = true;
+    });
+  userService.getUser(userLogin.username).then((user) => {
+    console.log(user)
+    router.push({ name: 'MainPage' , params: { userId: user.id } });
+  })
 }
 
 function createAccount() {

@@ -20,12 +20,14 @@ export class TaskController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.taskService.findOne(id);
   }
 
   @Delete(':id')
-  remove(@Param('listId', ParseIntPipe) listId: number, @Param('id', ParseIntPipe) id: number) {
+  @UseGuards(JwtAuthGuard)
+  remove(@Param('listId', ParseIntPipe) listId: number, @Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.taskService.remove(listId, id);
   }
 }

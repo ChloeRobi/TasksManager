@@ -1,6 +1,7 @@
 export default interface TaskDto {
 	id: number;
-	shortDescription: string;
+	short_description: string;
     description: string;
-    endDate: Date;
+    end_date: Date;
+    creation_date: Date;
 }

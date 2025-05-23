@@ -3,4 +3,5 @@ export default interface Task {
 	shortDescription: string;
     description: string;
     endDate: Date;
+    creationDate: Date;
 }

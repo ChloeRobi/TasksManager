@@ -14,22 +14,13 @@ import UserAdapter from './infrastructure/userAdapter';
 import AuthenticationService from './domain/service/authenticationService';
 import AuthenticationAdapter from './infrastructure/authenticationAdapter';
 import router from './infrastructure/router/router';
+import { store } from './infrastructure/store';
 
 const axiosInstance: AxiosInstance = axios.create({
 	baseURL: "http://localhost:3000/api",
 	withCredentials: true,
 	headers: { 'Content-Type': 'application/json' }
 });
-
-/*axiosInstance.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-  }, error => {
-    return Promise.reject(error);
-  });*/
 
 const vuetify = createVuetify({
   components,
@@ -46,5 +37,6 @@ const authService = new AuthenticationService(new AuthenticationAdapter(axiosIns
 app.use(vuetify)
     .provide('authentication-service', new AuthenticationService(new AuthenticationAdapter(axiosInstance)))
     .provide('user-service', new UserService(new UserAdapter(authService.getApi())))
+    .provide('store', store)
     .use(router)
     .mount('#app');

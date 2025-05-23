@@ -18,7 +18,6 @@ export default class AuthenticationAdapter implements AuthenticationPort {
             this.axiosInstance
                 .post('/auth', userLogin)
                 .then((response: AxiosResponse) => {
-                    console.log(response)
                     const token = response.data;
                     this.saveToken(token);
                     this.setAuthHeader(token);

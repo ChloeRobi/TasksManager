@@ -3,6 +3,7 @@ import type { AxiosError } from "axios";
 import { ErrorMessageDto } from "../dto/errorMessageDto";
 
 export class ErrorMapper {
+    //TODOCRB à voir
     static apply(error: AxiosError): ErrorMessage {
         const message = (error.response?.data as any)?.message;
         if (error.response?.status == 401) {

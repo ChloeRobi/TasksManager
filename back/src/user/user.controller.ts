@@ -18,8 +18,8 @@ export class UserController {
 
     @Get()
     @UseGuards(JwtAuthGuard)
-    findByEmail(@Query() query: { email: string }): Promise<User> {
-        return this.userService.findByEmail(query.email);
+    findByEmail(@Query('email') email: string): Promise<User> {
+        return this.userService.findByEmail(email);
     }
 
     @Post()

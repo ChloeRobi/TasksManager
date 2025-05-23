@@ -36,7 +36,7 @@ export class TaskService {
       return await this.taskRepository.find({ where: { tasks_list: { id: listId } } });
     } catch (e) {
       console.error('Erreur lors de la recherche des tâches :', e);
-      throw new BadRequestException(ErrorMessage.TASKS_SEARCH_FAILURE);
+      throw new NotFoundException(ErrorMessage.TASKS_SEARCH_FAILURE);
     }
   }
 
@@ -49,7 +49,7 @@ export class TaskService {
       return task;
     } catch (e) {
       console.error('Erreur lors de la recherche de la tâche :', e);
-      throw new BadRequestException(ErrorMessage.TASK_SEARCH_FAILURE);
+      throw new NotFoundException(ErrorMessage.TASK_SEARCH_FAILURE);
     }
   }
 

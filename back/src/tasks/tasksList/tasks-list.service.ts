@@ -39,7 +39,7 @@ export class TasksListService {
       return tasksList;
     } catch (e) {
       console.error('Erreur lors de la recherche de la liste de tâche :', e);
-      throw new BadRequestException(ErrorMessage.TASKS_LISTS_SEARCH_FAILURE);
+      throw new NotFoundException(ErrorMessage.TASKS_LISTS_SEARCH_FAILURE);
     }
   }
 
@@ -48,7 +48,7 @@ export class TasksListService {
       return await this.tasksListRepository.find({ where: { user: { id: userId } } });
     } catch (e) {
       console.error('Erreur lors de la recherche de la liste de tâche :', e);
-      throw new BadRequestException(ErrorMessage.TASKS_LISTS_SEARCH_FAILURE);
+      throw new NotFoundException(ErrorMessage.TASKS_LISTS_SEARCH_FAILURE);
     }
   }
 

@@ -5,12 +5,16 @@ import type TaskPort from "../port/taskPort";
 export default class TaskService {
     constructor(private taskPort: TaskPort) {}
 
-    getTasks(): Promise<Task[]> {
-        return this.taskPort.getTasks();
+    getTasks(tasksListId: number): Promise<Task[]> {
+        return this.taskPort.getTasks(tasksListId);
     }
 
-    saveTaskLists(task: TaskToSave): Promise<Task> {
-        return this.taskPort.save(task);
+    saveTask(tasksListId: number, task: TaskToSave): Promise<Task> {
+        return this.taskPort.save(tasksListId, task);
+    }
+
+    delete(tasksListId: number, id: number): Promise<void> {
+        return this.taskPort.delete(tasksListId, id);
     }
 
 }

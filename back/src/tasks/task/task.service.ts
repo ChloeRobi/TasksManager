@@ -20,6 +20,7 @@ export class TaskService {
     const tasksList: TasksList = await this.tasksListService.findOne(listId);
     const task: Task = this.taskRepository.create({
       ...taskDto,
+      creation_date: new Date(),
       tasks_list: tasksList
     });
     try {
@@ -53,7 +54,14 @@ export class TaskService {
   }
 
   async remove(listId: number, id: number) {
-    const task = await this.findOne(id);
+    const task = await this.taskRepository.findOne({
+      where: { id },
+      relations: ['tasks_list'],
+    });
+    if (!task) {
+      console.error(`Task with ID ${id} not found`);
+      throw new NotFoundException(ErrorMessage.TASK_SEARCH_FAILURE);
+    }
     if (task.tasks_list.id !== listId) {
       throw new ForbiddenException(ErrorMessage.TASK_DELETION_FORBIDDEN);
     }

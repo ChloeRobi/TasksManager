@@ -9,21 +9,22 @@ export default class TaskAdapter implements TaskPort {
 
     private urlApi: string;
 
-    constructor(private tasksListId: number, private axiosInstance: AxiosInstance) {
-        this.urlApi = `/tasks-lists/${tasksListId}/tasks`;
+    constructor(private axiosInstance: AxiosInstance) {
+        this.urlApi = `/tasks-lists/`;
     }
 
-    getTasks(): Promise<Task[]> {
+    getTasks(tasksListId: number): Promise<Task[]> {
         return new Promise((resolve, reject) => {
             this.axiosInstance
-                .get(this.urlApi)
+                .get(this.urlApi + `${tasksListId}/tasks`)
                 .then((response: AxiosResponse) => {
                     const tasksDto: TaskDto[] = response.data;
                     const tasks: Task[] = tasksDto.map((taskDto: TaskDto) => ({
                         id: taskDto.id,
-                        shortDescription: taskDto.shortDescription,
+                        shortDescription: taskDto.short_description,
                         description: taskDto.description,
-                        endDate: taskDto.endDate
+                        endDate: taskDto.end_date,
+                        creationDate: taskDto.creation_date
                     }));
                     resolve(tasks);
                 }).catch((error: AxiosError) => {
@@ -32,7 +33,36 @@ export default class TaskAdapter implements TaskPort {
         });
     }
 
-    save(task: TaskToSave): Promise<Task> {
-        throw new Error("Method not implemented.");
+    save(tasksListId: number, task: TaskToSave): Promise<Task> {
+        return new Promise((resolve, reject) => {
+            this.axiosInstance
+                .post(this.urlApi + `${tasksListId}/tasks`, task)
+                .then((response: AxiosResponse) => {
+                    const taskDto: TaskDto = response.data;
+                    const task: Task = {
+                        id: taskDto.id,
+                        shortDescription: taskDto.short_description,
+                        description: taskDto.description,
+                        endDate: taskDto.end_date,
+                        creationDate: taskDto.creation_date
+                    }
+                    resolve(task);
+                }).catch((error: AxiosError) => {
+                    reject(ErrorMapper.apply(error));
+                });
+        });
+    }
+
+    delete(tasksListId: number, id: number): Promise<void> {
+        console.log(this.urlApi + `/${id}`)
+        return new Promise((resolve, reject) => {
+            this.axiosInstance
+                .delete(this.urlApi + `${tasksListId}/tasks/${id}`)
+                .then(() => {
+                    resolve();
+                }).catch((error: AxiosError) => {
+                    reject(ErrorMapper.apply(error));
+                });
+        });
     }
 }

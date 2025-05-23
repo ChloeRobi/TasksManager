@@ -1,5 +1,5 @@
 export default interface TaskToSave {
-	shortDescription: string;
+	short_description: string;
     description: string;
-    endDate: Date;
+    end_date: Date;
 }

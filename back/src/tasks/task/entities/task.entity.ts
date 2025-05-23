@@ -22,6 +22,11 @@ export class Task {
     @IsNotEmpty()
     end_date: Date;
 
+    @Column()
+    @IsDate()
+    @IsNotEmpty()
+    creation_date: Date;
+
     @ManyToOne(() => TasksList, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
     @JoinColumn({ name: 'tasks_list_id' })
     tasks_list: TasksList;

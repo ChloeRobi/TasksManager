@@ -45,15 +45,21 @@
           <h3>Select a list to show tasks</h3>
         </div>
         <div v-else>
-          <Tasks></Tasks>
+          <Tasks @displayDetails="selectTask($event)"></Tasks>
         </div>
       </v-card-text>
     </v-main>
+
+    <TaskDetails v-if="isTaskDetailsDisplayed" :taskId="selectedTaskId" @closeDetails="closeTaskDetails()"></TaskDetails>
+
   </v-layout>
 
   <v-snackbar v-model="showError" color="error" timeout="5000">
     {{ errorMessage }}
   </v-snackbar>
+  <DeletionTasksListModal v-if="displayWarningMessage" :tasksListIdToDelete="tasksListIdToDelete"
+    @confirm="confirmDeleteTasksList()" @cancel="displayWarningMessage = false" @error="setErrorOnListDeletion($event)">
+  </DeletionTasksListModal>
 </template>
 
 <script setup lang="ts">
@@ -64,7 +70,12 @@ import TasksListService from '@/domain/service/tasksListService';
 import type { StoreState } from '@/infrastructure/store';
 import TasksListAdapter from '@/infrastructure/tasksListAdapter';
 import Tasks from './Tasks.vue';
-import { computed, inject, onBeforeMount, ref, type Ref } from 'vue';
+import DeletionTasksListModal from './DeletionTasksListModal.vue';
+import { computed, inject, onBeforeMount, provide, ref, type Ref } from 'vue';
+import TaskService from '@/domain/service/taskService';
+import TaskAdapter from '@/infrastructure/taskAdapter';
+import type Task from '@/domain/model/task';
+import TaskDetails from './TaskDetails.vue';
 
 const props = defineProps<{
   userId: string;
@@ -80,21 +91,26 @@ const authenticationService: AuthenticationService = inject(
 const store: StoreState = inject('store', {} as StoreState);
 
 const tasksListService: TasksListService = new TasksListService(new TasksListAdapter(Number(props.userId), authenticationService.getApi()));
+const taskService: TaskService = new TaskService(new TaskAdapter(authenticationService.getApi()));
+provide("tasks-list-service", tasksListService);
+provide("task-service", taskService);
 
 const rail: Ref<boolean> = ref(true);
 const tasksLists: Ref<TasksList[]> = ref([]);
 const addTasksList: Ref<boolean> = ref(false);
 const newListTasksTitle: Ref<string> = ref("");
-const isTasksListSelected: Ref<boolean> = ref(false);
-let errorMessage: Ref<string> = ref('')
-let showError: Ref<boolean> = ref(false)
+const displayWarningMessage: Ref<boolean> = ref(false);
+const tasksListIdToDelete: Ref<number> = ref(-1);
+const errorMessage: Ref<string> = ref('')
+const showError: Ref<boolean> = ref(false);
+const isTaskDetailsDisplayed: Ref<boolean> = ref(false);
+const selectedTaskId: Ref<number> = ref(-1);
 
 onBeforeMount(() => {
   tasksListService.getTasksLists().then((lists: TasksList[]) => {
     tasksLists.value.push(...lists);
   }).catch((error: ErrorMessage) => {
-    errorMessage.value = error;
-    showError.value = true;
+    setError(error);
   })
 })
 
@@ -102,28 +118,55 @@ const isAddingTasksList = computed(() => {
   return !rail.value && addTasksList.value;
 })
 
+const isTasksListSelected = computed(() => {
+  return store.getTasksId() !== -1;
+})
+
 function saveNewTasksList() {
   tasksListService.saveTaskLists(newListTasksTitle.value).then((tasksList: TasksList) => {
     tasksLists.value.push(tasksList);
     newListTasksTitle.value = "";
   }).catch((error: ErrorMessage) => {
-    errorMessage.value = error;
-    showError.value = true;
+    setError(error);
   })
+}
+
+function deleteTasksList(id: number) {
+  tasksListIdToDelete.value = id;
+  displayWarningMessage.value = true;
 }
 
 function displayTasks(id: number) {
   store.setTasksId(id);
-  isTasksListSelected.value = true;
+  taskService.getTasks(id).then((tasksToDisplay: Task[]) => {
+    store.setTasks(tasksToDisplay);
+  });
 }
 
-function deleteTasksList(id: number) {
-  tasksListService.deleteTasksList(id).then(() => {
-    tasksLists.value = tasksLists.value.filter(task => task.id !== id);
-  }).catch((error: ErrorMessage) => {
-    errorMessage.value = error;
-    showError.value = true;
-  })
+function confirmDeleteTasksList() {
+  tasksLists.value = tasksLists.value.filter(task => task.id !== tasksListIdToDelete.value);
+  store.deleteTaskList(tasksListIdToDelete.value);
+  displayWarningMessage.value = false;
+}
+
+function setErrorOnListDeletion(message: string) {
+  setError(message)
+  displayWarningMessage.value = false;
+}
+
+function setError(message: string) {
+  errorMessage.value = message;
+  showError.value = true;
+}
+
+function selectTask(id: number) {
+  selectedTaskId.value = id;
+  isTaskDetailsDisplayed.value = true;
+}
+
+function closeTaskDetails() {
+  selectedTaskId.value = -1;
+  isTaskDetailsDisplayed.value = false;
 }
 
 </script>

@@ -80,7 +80,8 @@
 </style>
 
 <script setup lang="ts">
-import type User from '@/domain/model/user';
+import type { ErrorMessage } from '@/domain/model/errorMessage';
+import type UserToSave from '@/domain/model/userToSave';
 import UserService from '@/domain/service/userService';
 import { inject, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';

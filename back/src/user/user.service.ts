@@ -16,10 +16,12 @@ export class UserService {
 
 
     async findByEmail(email: string): Promise<User> {
+        console.log(email)
         const user = await this.userRepository.findOne({ where: { email } });
         if (user === null) {
             throw new NotFoundException(ErrorMessage.USER_SEARCH_FAILURE);
         }
+        console.log(user)
         return user;
     }
 

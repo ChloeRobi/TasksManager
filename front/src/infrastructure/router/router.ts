@@ -18,7 +18,7 @@ const router = createRouter({
       component: UserRegistration,
     },
     {
-      path: '/main-page/:userId',
+      path: '/main-page/:userId/:userName/:email',
       name: 'MainPage',
       component: MainPage,
       props: true
